@@ -9,11 +9,14 @@ CORS(app)
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data = request.get_json()
-    email_text = data.get("email", "")
+    player_moves = data.get("player_moves", "")
+    most_recent_move = data.get("most_recent_move", "")
+    level = data.get("level", 1)
 
     prompt = (
-        "You are a chess player. You will respond only with your move. "
-    f"\n{email_text}"
+        "You are a chess player. Your level of play will be determined by the following level of play. 1 is novice and 10 grandmaster. The level of play you will be is: {level}"
+        "You are always going to be the black pieces in the game. You will move one piece at a time. The following is all the moves the player has made in the game: {player_moves}"
+        "The most recent move made by the player is: {most_recent_move}"
     )
 
     try:
@@ -34,9 +37,7 @@ def analyze():
         )
 
         result = response.json()
-        
         result_text = result["choices"][0]["message"]["content"]
-        first_line = result_text.split("\n")[0].strip().lower()
         
         if response.status_code == 503:
             is_phishing = "Internal API server error. Please try again later."
