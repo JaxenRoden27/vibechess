@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VibeChess</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #fullscreenChessContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+      }
+      #fullscreenBtn {
+        padding: 2em 5em;
+        font-size: 1.5em;
+        border-radius: 8px;
+        border: none;
+        background: #222;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fullscreenChessContainer">
+      <button id="fullscreenBtn">Play Chess</button>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
