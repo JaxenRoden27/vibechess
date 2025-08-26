@@ -1,6 +1,7 @@
 services:
   - type: web
-    name: Phishing-checker
+    name: vibechess
     env: python
     buildCommand: "pip install -r requirements.txt"
+
     startCommand: "gunicorn app:app"
