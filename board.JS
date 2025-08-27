@@ -3,18 +3,18 @@
 // Create a chessboard container
 const chessboard = document.createElement('div');
 chessboard.style.display = 'grid';
-chessboard.style.gridTemplateColumns = 'repeat(8, 50px)';
-chessboard.style.gridTemplateRows = 'repeat(8, 50px)';
-chessboard.style.width = '400px';
-chessboard.style.height = '400px';
+chessboard.style.gridTemplateColumns = 'repeat(8, 80px)';
+chessboard.style.gridTemplateRows = 'repeat(8, 80px)';
+chessboard.style.width = '640px';
+chessboard.style.height = '640px';
 chessboard.style.border = '2px solid black';
 
 // Generate the 8x8 grid for the chessboard
 for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
         const square = document.createElement('div');
-        square.style.width = '50px';
-        square.style.height = '50px';
+        square.style.width = '80px';
+        square.style.height = '80px';
         square.style.boxSizing = 'border-box';
 
         // Alternate colors for the squares
