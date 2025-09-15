@@ -10,10 +10,16 @@ class Pawn {
         const moves = [];
         const dir = this.color === 'white' ? 1 : -1;
         const { x, y } = this.position;
+        const promotionRank = this.color === 'white' ? 7 : 0;
 
         // Forward move
         if (board.isEmpty(x, y + dir)) {
-            moves.push({ x, y: y + dir });
+            // Promotion
+            if (y + dir === promotionRank) {
+                moves.push({ x, y: y + dir, promotion: true });
+            } else {
+                moves.push({ x, y: y + dir });
+            }
 
             // First move: two squares
             if (!this.hasMoved && board.isEmpty(x, y + 2 * dir)) {
@@ -26,11 +32,15 @@ class Pawn {
             const nx = x + dx;
             const ny = y + dir;
             if (board.isEnemy(nx, ny, this.color)) {
-                moves.push({ x: nx, y: ny });
+                // Promotion on capture
+                if (ny === promotionRank) {
+                    moves.push({ x: nx, y: ny, promotion: true });
+                } else {
+                    moves.push({ x: nx, y: ny });
+                }
             }
 
             // En passant
-            // Check if last move was an enemy pawn moving two squares to adjacent file
             if (
                 board.lastMove &&
                 board.lastMove.piece instanceof Pawn &&
@@ -39,14 +49,11 @@ class Pawn {
                 board.lastMove.to.y === y &&
                 board.lastMove.to.x === nx
             ) {
-                // The enemy pawn is next to us and just moved two squares
                 if (board.isEmpty(nx, ny)) {
                     moves.push({ x: nx, y: ny, enPassant: true });
                 }
             }
         }
-
-        // Promotion not implemented here
 
         return moves;
     }
@@ -56,9 +63,5 @@ class Pawn {
         this.hasMoved = true;
     }
 }
-
-// Example board interface for reference
-// board.isEmpty(x, y): returns true if square is empty
-// board.isEnemy(x, y, color): returns true if square has enemy piece
 
 module.exports = Pawn;
