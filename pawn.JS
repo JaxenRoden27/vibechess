@@ -28,9 +28,25 @@ class Pawn {
             if (board.isEnemy(nx, ny, this.color)) {
                 moves.push({ x: nx, y: ny });
             }
+
+            // En passant
+            // Check if last move was an enemy pawn moving two squares to adjacent file
+            if (
+                board.lastMove &&
+                board.lastMove.piece instanceof Pawn &&
+                board.lastMove.piece.color !== this.color &&
+                board.lastMove.from.y === y + 2 * dir &&
+                board.lastMove.to.y === y &&
+                board.lastMove.to.x === nx
+            ) {
+                // The enemy pawn is next to us and just moved two squares
+                if (board.isEmpty(nx, ny)) {
+                    moves.push({ x: nx, y: ny, enPassant: true });
+                }
+            }
         }
 
-        // En passant and promotion not implemented here
+        // Promotion not implemented here
 
         return moves;
     }
