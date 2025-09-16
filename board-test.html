@@ -54,6 +54,10 @@
             cursor: grab;
         }
 
+        .knight {
+            cursor: grab;
+        }
+
         .highlight {
             outline: 2px solid orange;
         }
@@ -65,10 +69,13 @@
     <div class="chessboard" id="chessboard"></div>
     <script src="pieces/pawn.JS"></script>
     <script src="pieces/rook.js"></script>
+    <script src="pieces/knight.js"></script>
     <script>
         // Simple board representation
         const boardState = Array(8).fill(null).map(() => Array(8).fill(null));
         const pawns = [];
+        const rooks = [];
+        const knights = [];
 
         // Helper functions for board logic
         function isEmpty(x, y) {
@@ -97,7 +104,6 @@
         }
 
         // Initialize rooks
-        const rooks = [];
         const rookPositions = [
             { x: 0, y: 0 }, { x: 7, y: 0 }, // White rooks
             { x: 0, y: 7 }, { x: 7, y: 7 }  // Black rooks
@@ -107,6 +113,18 @@
             const rook = new Rook(color, { x: pos.x, y: pos.y });
             rooks.push(rook);
             boardState[pos.y][pos.x] = rook;
+        });
+
+        // Initialize knights
+        const knightPositions = [
+            { x: 1, y: 0 }, { x: 6, y: 0 }, // White knights
+            { x: 1, y: 7 }, { x: 6, y: 7 }  // Black knights
+        ];
+        knightPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const knight = new Knight(color, { x: pos.x, y: pos.y });
+            knights.push(knight);
+            boardState[pos.y][pos.x] = knight;
         });
 
         // Draw board and pawns
@@ -133,6 +151,10 @@
                         } else if (piece instanceof Rook) {
                             pieceDiv.className = 'rook';
                             pieceDiv.textContent = piece.color === 'white' ? '♖' : '♜';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        } else if (piece instanceof Knight) {
+                            pieceDiv.className = 'knight';
+                            pieceDiv.textContent = piece.color === 'white' ? '♘' : '♞';
                             pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
                         }
                         pieceDiv.draggable = true;
@@ -192,6 +214,9 @@
                     } else if (capturedPiece instanceof Rook) {
                         const idx = rooks.indexOf(capturedPiece);
                         if (idx !== -1) rooks.splice(idx, 1);
+                    } else if (capturedPiece instanceof Knight) {
+                        const idx = knights.indexOf(capturedPiece);
+                        if (idx !== -1) knights.splice(idx, 1);
                     }
                     boardState[toY][toX] = null;
                 }
