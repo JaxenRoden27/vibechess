@@ -1,45 +1,39 @@
 class Rook {
-    constructor(position, color) {
-        this.position = position; // Position as [row, col]
-        this.color = color; // 'white' or 'black'
-        this.hasMoved = false; // Track if rook has moved (for castling)
+    constructor(color, position) {
+        this.color = color;
+        this.position = { ...position };
+        this.hasMoved = false;
     }
 
-    getMoves(board) {
-        const moves = [];
-        const directions = [
-            [1, 0],  // Down
-            [-1, 0], // Up
-            [0, 1],  // Right
-            [0, -1]  // Left
-        ];
-
-        for (const [dx, dy] of directions) {
-            let [x, y] = this.position;
-
-            while (true) {
-                x += dx;
-                y += dy;
-
-                if (x < 0 || x >= 8 || y < 0 || y >= 8) break; // Out of bounds
-
-                const piece = board[x][y];
-                if (piece) {
-                    if (piece.color !== this.color) moves.push([x, y]); // Capture
-                    break; // Blocked
-                }
-
-                moves.push([x, y]); // Valid move
-            }
-        }
-
-        return moves;
-    }
-
-    move(newPosition) {
-        this.position = newPosition;
+    moveTo(pos) {
+        this.position = { ...pos };
         this.hasMoved = true;
     }
-}
 
-module.exports = Rook;
+    getPossibleMoves(board) {
+        const moves = [];
+        const { x, y } = this.position;
+        const directions = [
+            { dx: 1, dy: 0 },
+            { dx: -1, dy: 0 },
+            { dx: 0, dy: 1 },
+            { dx: 0, dy: -1 }
+        ];
+        for (const { dx, dy } of directions) {
+            let nx = x + dx, ny = y + dy;
+            while (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                if (board.isEmpty(nx, ny)) {
+                    moves.push({ x: nx, y: ny });
+                } else if (board.isEnemy(nx, ny, this.color)) {
+                    moves.push({ x: nx, y: ny });
+                    break;
+                } else {
+                    break;
+                }
+                nx += dx;
+                ny += dy;
+            }
+        }
+        return moves;
+    }
+}
