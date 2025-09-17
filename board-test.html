@@ -66,6 +66,10 @@
             cursor: grab;
         }
 
+        .king {
+            cursor: grab;
+        }
+
         .highlight {
             outline: 2px solid orange;
         }
@@ -80,6 +84,7 @@
     <script src="pieces/knight.js"></script>
     <script src="pieces/bishop.js"></script>
     <script src="pieces/queen.js"></script>
+    <script src="pieces/king.js"></script>
     <script>
         // Simple board representation
         const boardState = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -88,6 +93,7 @@
         const knights = [];
         const bishops = [];
         const queens = [];
+        const kings = [];
 
         // Helper functions for board logic
         function isEmpty(x, y) {
@@ -163,6 +169,18 @@
             boardState[pos.y][pos.x] = queen;
         });
 
+        // Initialize kings
+        const kingPositions = [
+            { x: 4, y: 0 }, // White king
+            { x: 4, y: 7 }  // Black king
+        ];
+        kingPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const king = new King(color, { x: pos.x, y: pos.y });
+            kings.push(king);
+            boardState[pos.y][pos.x] = king;
+        });
+
         // Draw board and pawns
         const board = document.getElementById('chessboard');
         function renderBoard() {
@@ -201,6 +219,11 @@
                             pieceDiv.textContent = piece.color === 'white' ? '♕' : '♛';
                             pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
                         }
+                        else if (piece instanceof King) {
+                            pieceDiv.className = 'king';
+                            pieceDiv.textContent = piece.color === 'white' ? '♔' : '♚';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        }
                         pieceDiv.draggable = true;
                         pieceDiv.dataset.x = col;
                         pieceDiv.dataset.y = row;
@@ -211,6 +234,35 @@
                 }
             }
         }
+
+        function canCastle(color, side) {
+            // White pieces are on y=0, black on y=7
+            const y = color === 'white' ? 0 : 7;
+            const king = boardState[y][4];
+            if (!king || king.hasMoved) return false;
+
+            if (side === 'king') {
+                // King-side rook at x=7
+                const rook = boardState[y][7];
+                if (!rook || rook.hasMoved) return false;
+                // Squares between king and rook must be empty
+                if (!isEmpty(5, y) || !isEmpty(6, y)) return false;
+                // (Optional: Check if king passes through check)
+                return true;
+            }
+            if (side === 'queen') {
+                // Queen-side rook at x=0
+                const rook = boardState[y][0];
+                if (!rook || rook.hasMoved) return false;
+                // Squares between king and rook must be empty
+                if (!isEmpty(1, y) || !isEmpty(2, y) || !isEmpty(3, y)) return false;
+                // (Optional: Check if king passes through check)
+                return true;
+            }
+            return false;
+        }
+
+        boardInterface.canCastle = canCastle;
 
         let draggedPiece = null;
         let validMoves = [];
@@ -268,7 +320,30 @@
                         const idx = queens.indexOf(capturedPiece);
                         if (idx !== -1) queens.splice(idx, 1);
                     }
+                    else if (capturedPiece instanceof King) {
+                        const idx = kings.indexOf(capturedPiece);
+                        if (idx !== -1) kings.splice(idx, 1);
+                    }
                     boardState[toY][toX] = null;
+                }
+                // Castling move
+                if (draggedPiece instanceof King && move.castling) {
+                    // King-side
+                    if (move.castling === 'king') {
+                        // Move rook from (7, y) to (5, y)
+                        const rook = boardState[toY][7];
+                        boardState[toY][7] = null;
+                        boardState[toY][5] = rook;
+                        rook.moveTo({ x: 5, y: toY });
+                    }
+                    // Queen-side
+                    if (move.castling === 'queen') {
+                        // Move rook from (0, y) to (3, y)
+                        const rook = boardState[toY][0];
+                        boardState[toY][0] = null;
+                        boardState[toY][3] = rook;
+                        rook.moveTo({ x: 3, y: toY });
+                    }
                 }
                 // Move piece
                 boardState[fromY][fromX] = null;
