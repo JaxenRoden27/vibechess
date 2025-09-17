@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #e6ccb2;
+            /* light brown */
+        }
+
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            margin: 20px auto;
+            border: 2px solid #333;
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .chessboard .square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            user-select: none;
+        }
+
+        .white {
+            background-color: #f5e0b7;
+            /* lighter brown */
+        }
+
+        .black {
+            background-color: #a47551;
+            /* darker brown */
+        }
+
+        .pawn {
+            cursor: grab;
+        }
+
+        .rook {
+            cursor: grab;
+        }
+
+        .knight {
+            cursor: grab;
+        }
+
+        .bishop {
+            cursor: grab;
+        }
+
+        .queen {
+            cursor: grab;
+        }
+
+        .king {
+            cursor: grab;
+        }
+
+        .highlight {
+            outline: 2px solid orange;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pawn Test Page</h1>
+    <div class="chessboard" id="chessboard"></div>
+    <script src="pieces/pawn.JS"></script>
+    <script src="pieces/rook.js"></script>
+    <script src="pieces/knight.js"></script>
+    <script src="pieces/bishop.js"></script>
+    <script src="pieces/queen.js"></script>
+    <script src="pieces/king.js"></script>
+    <script>
+        // Simple board representation
+        const boardState = Array(8).fill(null).map(() => Array(8).fill(null));
+        const pawns = [];
+        const rooks = [];
+        const knights = [];
+        const bishops = [];
+        const queens = [];
+        const kings = [];
+
+        // Helper functions for board logic
+        function isEmpty(x, y) {
+            return y >= 0 && y < 8 && x >= 0 && x < 8 && boardState[y][x] === null;
+        }
+        function isEnemy(x, y, color) {
+            if (y < 0 || y > 7 || x < 0 || x > 7) return false;
+            const p = boardState[y][x];
+            return p && p.color !== color;
+        }
+
+        // Board interface for Pawn.js
+        const boardInterface = {
+            isEmpty,
+            isEnemy,
+            lastMove: null
+        };
+
+        // Initialize pawns
+        for (let col = 0; col < 8; col++) {
+            const whitePawn = new Pawn('white', { x: col, y: 1 });
+            const blackPawn = new Pawn('black', { x: col, y: 6 });
+            pawns.push(whitePawn, blackPawn);
+            boardState[1][col] = whitePawn;
+            boardState[6][col] = blackPawn;
+        }
+
+        // Initialize rooks
+        const rookPositions = [
+            { x: 0, y: 0 }, { x: 7, y: 0 }, // White rooks
+            { x: 0, y: 7 }, { x: 7, y: 7 }  // Black rooks
+        ];
+        rookPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const rook = new Rook(color, { x: pos.x, y: pos.y });
+            rooks.push(rook);
+            boardState[pos.y][pos.x] = rook;
+        });
+
+        // Initialize knights
+        const knightPositions = [
+            { x: 1, y: 0 }, { x: 6, y: 0 }, // White knights
+            { x: 1, y: 7 }, { x: 6, y: 7 }  // Black knights
+        ];
+        knightPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const knight = new Knight(color, { x: pos.x, y: pos.y });
+            knights.push(knight);
+            boardState[pos.y][pos.x] = knight;
+        });
+
+        // Initialize bishops
+        const bishopPositions = [
+            { x: 2, y: 0 }, { x: 5, y: 0 }, // White bishops
+            { x: 2, y: 7 }, { x: 5, y: 7 }  // Black bishops
+        ];
+        bishopPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const bishop = new Bishop(color, { x: pos.x, y: pos.y });
+            bishops.push(bishop);
+            boardState[pos.y][pos.x] = bishop;
+        });
+
+        // Initialize queens
+        const queenPositions = [
+            { x: 3, y: 0 }, // White queen
+            { x: 3, y: 7 }  // Black queen
+        ];
+        queenPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const queen = new Queen(color, { x: pos.x, y: pos.y });
+            queens.push(queen);
+            boardState[pos.y][pos.x] = queen;
+        });
+
+        // Initialize kings
+        const kingPositions = [
+            { x: 4, y: 0 }, // White king
+            { x: 4, y: 7 }  // Black king
+        ];
+        kingPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const king = new King(color, { x: pos.x, y: pos.y });
+            kings.push(king);
+            boardState[pos.y][pos.x] = king;
+        });
+
+        // Draw board and pawns
+        const board = document.getElementById('chessboard');
+        function renderBoard() {
+            board.innerHTML = '';
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = 'square ' + ((row + col) % 2 === 0 ? 'white' : 'black');
+                    square.dataset.x = col;
+                    square.dataset.y = row;
+                    square.ondragover = e => e.preventDefault();
+                    square.ondrop = onDrop;
+                    board.appendChild(square);
+
+                    const piece = boardState[row][col];
+                    if (piece) {
+                        const pieceDiv = document.createElement('div');
+                        if (piece instanceof Pawn) {
+                            pieceDiv.className = 'pawn';
+                            pieceDiv.textContent = piece.color === 'white' ? '♙' : '♟';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        } else if (piece instanceof Rook) {
+                            pieceDiv.className = 'rook';
+                            pieceDiv.textContent = piece.color === 'white' ? '♖' : '♜';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        } else if (piece instanceof Knight) {
+                            pieceDiv.className = 'knight';
+                            pieceDiv.textContent = piece.color === 'white' ? '♘' : '♞';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        } else if (piece instanceof Bishop) {
+                            pieceDiv.className = 'bishop';
+                            pieceDiv.textContent = piece.color === 'white' ? '♗' : '♝';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        } else if (piece instanceof Queen) {
+                            pieceDiv.className = 'queen';
+                            pieceDiv.textContent = piece.color === 'white' ? '♕' : '♛';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        }
+                        else if (piece instanceof King) {
+                            pieceDiv.className = 'king';
+                            pieceDiv.textContent = piece.color === 'white' ? '♔' : '♚';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        }
+                        pieceDiv.draggable = true;
+                        pieceDiv.dataset.x = col;
+                        pieceDiv.dataset.y = row;
+                        pieceDiv.ondragstart = onDragStart;
+                        pieceDiv.ondragend = onDragEnd;
+                        square.appendChild(pieceDiv);
+                    }
+                }
+            }
+        }
+
+        function canCastle(color, side) {
+            // White pieces are on y=0, black on y=7
+            const y = color === 'white' ? 0 : 7;
+            const king = boardState[y][4];
+            if (!king || king.hasMoved) return false;
+
+            if (side === 'king') {
+                // King-side rook at x=7
+                const rook = boardState[y][7];
+                if (!rook || rook.hasMoved) return false;
+                // Squares between king and rook must be empty
+                if (!isEmpty(5, y) || !isEmpty(6, y)) return false;
+                // (Optional: Check if king passes through check)
+                return true;
+            }
+            if (side === 'queen') {
+                // Queen-side rook at x=0
+                const rook = boardState[y][0];
+                if (!rook || rook.hasMoved) return false;
+                // Squares between king and rook must be empty
+                if (!isEmpty(1, y) || !isEmpty(2, y) || !isEmpty(3, y)) return false;
+                // (Optional: Check if king passes through check)
+                return true;
+            }
+            return false;
+        }
+
+        boardInterface.canCastle = canCastle;
+
+        let draggedPiece = null;
+        let validMoves = [];
+
+        function onDragStart(e) {
+            const x = parseInt(this.dataset.x);
+            const y = parseInt(this.dataset.y);
+            draggedPiece = boardState[y][x];
+            validMoves = draggedPiece.getPossibleMoves({
+                ...boardInterface,
+                lastMove: boardInterface.lastMove
+            });
+            // Highlight valid squares
+            document.querySelectorAll('.square').forEach(sq => {
+                const sx = parseInt(sq.dataset.x);
+                const sy = parseInt(sq.dataset.y);
+                if (validMoves.some(m => m.x === sx && m.y === sy)) {
+                    sq.classList.add('highlight');
+                }
+            });
+            e.dataTransfer.setData('text/plain', `${x},${y}`);
+        }
+
+        function onDragEnd() {
+            document.querySelectorAll('.square').forEach(sq => sq.classList.remove('highlight'));
+            draggedPiece = null;
+            validMoves = [];
+        }
+
+        function onDrop(e) {
+            const toX = parseInt(this.dataset.x);
+            const toY = parseInt(this.dataset.y);
+            if (!draggedPiece) return;
+            const fromX = draggedPiece.position.x;
+            const fromY = draggedPiece.position.y;
+            // Check if move is valid
+            const move = validMoves.find(m => m.x === toX && m.y === toY);
+            if (move) {
+                // Handle normal capture
+                if (boardState[toY][toX]) {
+                    const capturedPiece = boardState[toY][toX];
+                    if (capturedPiece instanceof Pawn) {
+                        const idx = pawns.indexOf(capturedPiece);
+                        if (idx !== -1) pawns.splice(idx, 1);
+                    } else if (capturedPiece instanceof Rook) {
+                        const idx = rooks.indexOf(capturedPiece);
+                        if (idx !== -1) rooks.splice(idx, 1);
+                    } else if (capturedPiece instanceof Knight) {
+                        const idx = knights.indexOf(capturedPiece);
+                        if (idx !== -1) knights.splice(idx, 1);
+                    } else if (capturedPiece instanceof Bishop) {
+                        const idx = bishops.indexOf(capturedPiece);
+                        if (idx !== -1) bishops.splice(idx, 1);
+                    } else if (capturedPiece instanceof Queen) {
+                        const idx = queens.indexOf(capturedPiece);
+                        if (idx !== -1) queens.splice(idx, 1);
+                    }
+                    else if (capturedPiece instanceof King) {
+                        const idx = kings.indexOf(capturedPiece);
+                        if (idx !== -1) kings.splice(idx, 1);
+                    }
+                    boardState[toY][toX] = null;
+                }
+                // Castling move
+                if (draggedPiece instanceof King && move.castling) {
+                    // King-side
+                    if (move.castling === 'king') {
+                        // Move rook from (7, y) to (5, y)
+                        const rook = boardState[toY][7];
+                        boardState[toY][7] = null;
+                        boardState[toY][5] = rook;
+                        rook.moveTo({ x: 5, y: toY });
+                    }
+                    // Queen-side
+                    if (move.castling === 'queen') {
+                        // Move rook from (0, y) to (3, y)
+                        const rook = boardState[toY][0];
+                        boardState[toY][0] = null;
+                        boardState[toY][3] = rook;
+                        rook.moveTo({ x: 3, y: toY });
+                    }
+                }
+                // Move piece
+                boardState[fromY][fromX] = null;
+                boardState[toY][toX] = draggedPiece;
+                // Update piece position
+                draggedPiece.moveTo({ x: toX, y: toY });
+                // Update last move
+                boardInterface.lastMove = {
+                    piece: draggedPiece,
+                    from: { x: fromX, y: fromY },
+                    to: { x: toX, y: toY }
+                };
+                renderBoard();
+            }
+            onDragEnd();
+        }
+
+        renderBoard();
+    </script>
+</body>
+
+</html>
