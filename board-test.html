@@ -58,6 +58,10 @@
             cursor: grab;
         }
 
+        .bishop {
+            cursor: grab;
+        }
+
         .highlight {
             outline: 2px solid orange;
         }
@@ -70,12 +74,14 @@
     <script src="pieces/pawn.JS"></script>
     <script src="pieces/rook.js"></script>
     <script src="pieces/knight.js"></script>
+    <script src="pieces/bishop.js"></script>
     <script>
         // Simple board representation
         const boardState = Array(8).fill(null).map(() => Array(8).fill(null));
         const pawns = [];
         const rooks = [];
         const knights = [];
+        const bishops = [];
 
         // Helper functions for board logic
         function isEmpty(x, y) {
@@ -127,6 +133,18 @@
             boardState[pos.y][pos.x] = knight;
         });
 
+        // Initialize bishops
+        const bishopPositions = [
+            { x: 2, y: 0 }, { x: 5, y: 0 }, // White bishops
+            { x: 2, y: 7 }, { x: 5, y: 7 }  // Black bishops
+        ];
+        bishopPositions.forEach(pos => {
+            const color = pos.y === 0 ? 'white' : 'black';
+            const bishop = new Bishop(color, { x: pos.x, y: pos.y });
+            bishops.push(bishop);
+            boardState[pos.y][pos.x] = bishop;
+        });
+
         // Draw board and pawns
         const board = document.getElementById('chessboard');
         function renderBoard() {
@@ -155,6 +173,11 @@
                         } else if (piece instanceof Knight) {
                             pieceDiv.className = 'knight';
                             pieceDiv.textContent = piece.color === 'white' ? '♘' : '♞';
+                            pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
+                        }
+                        else if (piece instanceof Bishop) {
+                            pieceDiv.className = 'bishop';
+                            pieceDiv.textContent = piece.color === 'white' ? '♗' : '♝';
                             pieceDiv.style.color = piece.color === 'white' ? 'black' : 'white';
                         }
                         pieceDiv.draggable = true;
