@@ -1,5 +1,5 @@
 // Variable to track the current turn
-let currentTurn = 'white'; // White moves first
+
 
 // Function to determine if a given square is under attack
 function isSquareUnderAttack(board, square, attackingColor) {

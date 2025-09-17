@@ -94,6 +94,9 @@ document.body.appendChild(chessboard);
 let draggedPiece = null;
 let validMoves = [];
 
+// Variable to track the current turn
+let currentTurn = 'white'; // White moves first
+
 function renderBoard() {
     chessboard.innerHTML = '';
     for (let row = 0; row < 8; row++) {
@@ -163,11 +166,21 @@ function renderBoard() {
 function onDragStart(e) {
     const x = parseInt(this.dataset.x);
     const y = parseInt(this.dataset.y);
-    draggedPiece = boardState[y][x];
+    const piece = boardState[y][x];
+
+    // Ensure only the current player's pieces can be moved
+    if (!piece || piece.color !== currentTurn) {
+        console.log(`It's ${currentTurn}'s turn!`);
+        e.preventDefault();
+        return;
+    }
+
+    draggedPiece = piece;
     validMoves = draggedPiece.getPossibleMoves({
         ...boardInterface,
         lastMove: boardInterface.lastMove
     });
+
     // Highlight valid squares
     document.querySelectorAll('#chessboard > div').forEach(sq => {
         const sx = parseInt(sq.dataset.x);
@@ -176,6 +189,7 @@ function onDragStart(e) {
             sq.style.outline = '2px solid orange';
         }
     });
+
     e.dataTransfer.setData('text/plain', `${x},${y}`);
 }
 
@@ -189,8 +203,10 @@ function onDrop(e) {
     const toX = parseInt(this.dataset.x);
     const toY = parseInt(this.dataset.y);
     if (!draggedPiece) return;
+
     const fromX = draggedPiece.position.x;
     const fromY = draggedPiece.position.y;
+
     // Check if move is valid
     const move = validMoves.find(m => m.x === toX && m.y === toY);
     if (move) {
@@ -218,6 +234,7 @@ function onDrop(e) {
             }
             boardState[toY][toX] = null;
         }
+
         // En passant capture
         if (draggedPiece instanceof Pawn && move.enPassant) {
             const dir = draggedPiece.color === 'white' ? 1 : -1;
@@ -229,6 +246,7 @@ function onDrop(e) {
                 boardState[capturedY][toX] = null;
             }
         }
+
         // Castling move
         if (draggedPiece instanceof King && move.castling) {
             // King-side
@@ -246,6 +264,7 @@ function onDrop(e) {
                 rook.moveTo({ x: 3, y: toY });
             }
         }
+
         // Move piece
         boardState[fromY][fromX] = null;
         boardState[toY][toX] = draggedPiece;
@@ -255,8 +274,13 @@ function onDrop(e) {
             from: { x: fromX, y: fromY },
             to: { x: toX, y: toY }
         };
+
+        // Switch turns
+        currentTurn = currentTurn === 'white' ? 'black' : 'white';
+        console.log(`Move successful! It's now ${currentTurn}'s turn.`);
         renderBoard();
     }
+
     onDragEnd();
 }
 
