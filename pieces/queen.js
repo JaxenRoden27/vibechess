@@ -42,5 +42,3 @@ class Queen {
         return moves;
     }
 }
-
-module.exports = Queen;

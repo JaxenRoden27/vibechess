@@ -37,5 +37,3 @@ class Bishop {
         this.position = pos;
     }
 }
-
-module.exports = Bishop;

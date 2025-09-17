@@ -8,7 +8,7 @@ class Pawn {
     // Returns array of possible moves (not checking for check)
     getPossibleMoves(board) {
         const moves = [];
-        const dir = this.color === 'white' ? 1 : -1;
+        const dir = this.color === 'white' ? -1 : 1;
         const { x, y } = this.position;
         const promotionRank = this.color === 'white' ? 7 : 0;
 
@@ -63,5 +63,3 @@ class Pawn {
         this.hasMoved = true;
     }
 }
-
-module.exports = Pawn;
