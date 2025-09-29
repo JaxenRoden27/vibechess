@@ -14,7 +14,7 @@ def analyze():
     prompt = (
         "You are a beginner chess player." +
         "You are always going to be the black pieces in the game. You will move one piece at a time." +
-        "The current state of the board is: {boardData}" +
+        f"The current state of the board is: {boardData}" +
         "Based on the current state of the board, suggest the move for black that a beginner chess player would make in the same situation." +
         "Respond in the following format: COLUMNROW, COLUMNROW" +
         "The first COLUMNROW is the piece you are moving, the second COLUMNROW is where you are moving it to." +
