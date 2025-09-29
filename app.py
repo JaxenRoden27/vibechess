@@ -18,6 +18,8 @@ def analyze():
         "Based on the current state of the board, suggest the move for black that a beginner chess player would make in the same situation." +
         "Respond in the following format: COLUMNROW, COLUMNROW" +
         "The first COLUMNROW is the piece you are moving, the second COLUMNROW is where you are moving it to." +
+        "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW." +
+        "Here is an example response, this is only for you to learn on, DO NOT USE THIS MOVE IN THE GAME unless that is a valid move that a beginner would make in that situation: E7, E5" +
         "Abide by all basic chess rules." +
         "Only include the move in the specified chess notation, no additional text."
     )
