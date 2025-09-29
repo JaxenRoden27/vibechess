@@ -1,8 +1,9 @@
 class Pawn {
     constructor(color, position) {
-        this.color = color; // 'white' or 'black'
-        this.position = position; // e.g., { x: 0, y: 1 }
+        this.color = color;
+        this.position = position;
         this.hasMoved = false;
+        this.type = 'pawn'; // <-- Add this line
     }
 
     // Returns array of possible moves (not checking for check)

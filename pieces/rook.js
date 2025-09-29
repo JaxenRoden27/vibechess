@@ -3,6 +3,7 @@ class Rook {
         this.color = color;
         this.position = { ...position };
         this.hasMoved = false;
+        this.type = 'rook'; // <-- Add this line
     }
 
     moveTo(pos) {
