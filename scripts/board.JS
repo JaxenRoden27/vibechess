@@ -10,8 +10,10 @@ function sendBoardToAI(boardData) {
     .then(response => {
         console.log("📨 AI Response: ", response);
         if (response && response.result && window.tryMoveNotation) {
-            // Expecting format: "E2,E4" or similar
+            // Expecting format: "E2, E4" or similar
             const move = response.result.trim().split(',');
+            move[0] = move[0].trim();
+            move[1] = move[1].trim();
             if (move.length === 2) {
                 const from = move[0].toUpperCase();
                 const to = move[1].toUpperCase();
