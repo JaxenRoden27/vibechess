@@ -1,83 +1,7 @@
 // board.js
 
-// Piece placement for standard chess starting position
-const initialBoard = [
-    ['black-rook', 'black-knight', 'black-bishop', 'black-queen', 'black-king', 'black-bishop', 'black-knight', 'black-rook'],
-    ['black-pawn', 'black-pawn',   'black-pawn',   'black-pawn',  'black-pawn', 'black-pawn',   'black-pawn',   'black-pawn'],
-    [null,         null,           null,           null,          null,         null,           null,           null],
-    [null,         null,           null,           null,          null,         null,           null,           null],
-    [null,         null,           null,           null,          null,         null,           null,           null],
-    [null,         null,           null,           null,          null,         null,           null,           null],
-    ['white-pawn', 'white-pawn',   'white-pawn',   'white-pawn',  'white-pawn', 'white-pawn',   'white-pawn',   'white-pawn'],
-    ['white-rook', 'white-knight', 'white-bishop', 'white-queen', 'white-king', 'white-bishop', 'white-knight', 'white-rook'],
-];
-
-// Piece arrays
-const pawns = [], rooks = [], knights = [], bishops = [], queens = [], kings = [];
-
-// Board state: 8x8 array of piece objects or null
-const boardState = Array(8).fill(null).map(() => Array(8).fill(null));
-
-// Helper: create piece object from string
-function createPiece(pieceStr, x, y) {
-    if (!pieceStr) return null;
-    const [color, type] = pieceStr.split('-');
-    const pos = { x, y };
-    switch (type) {
-        case 'pawn':   var p = new Pawn(color, pos); pawns.push(p); return p;
-        case 'rook':   var r = new Rook(color, pos); rooks.push(r); return r;
-        case 'knight': var k = new Knight(color, pos); knights.push(k); return k;
-        case 'bishop': var b = new Bishop(color, pos); bishops.push(b); return b;
-        case 'queen':  var q = new Queen(color, pos); queens.push(q); return q;
-        case 'king':   var ki = new King(color, pos); kings.push(ki); return ki;
-        default: return null;
-    }
-}
-
-// Initialize boardState with piece objects
-for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-        boardState[row][col] = createPiece(initialBoard[row][col], col, row);
-    }
-}
-
-// Helper functions
-function isEmpty(x, y) {
-    return y >= 0 && y < 8 && x >= 0 && x < 8 && boardState[y][x] === null;
-}
-function isEnemy(x, y, color) {
-    if (y < 0 || y > 7 || x < 0 || x > 7) return false;
-    const p = boardState[y][x];
-    return p && p.color !== color;
-}
-
-// Board interface for piece logic
-const boardInterface = {
-    isEmpty,
-    isEnemy,
-    lastMove: null
-};
-
-// Castling logic
-function canCastle(color, side) {
-    const y = color === 'white' ? 7 : 0;
-    const king = boardState[y][4];
-    if (!king || king.hasMoved) return false;
-    if (side === 'king') {
-        const rook = boardState[y][7];
-        if (!rook || rook.hasMoved) return false;
-        if (!isEmpty(5, y) || !isEmpty(6, y)) return false;
-        return true;
-    }
-    if (side === 'queen') {
-        const rook = boardState[y][0];
-        if (!rook || rook.hasMoved) return false;
-        if (!isEmpty(1, y) || !isEmpty(2, y) || !isEmpty(3, y)) return false;
-        return true;
-    }
-    return false;
-}
-boardInterface.canCastle = canCastle;
+// Use the board from game.js as the source of truth
+const board = window.board;
 
 // DOM rendering and move logic
 const chessboard = document.createElement('div');
@@ -91,12 +15,22 @@ chessboard.id = 'chessboard';
 
 document.body.appendChild(chessboard);
 
-let draggedPiece = null;
-let validMoves = [];
+let selectedFrom = null;
+let draggedFrom = null;
+let validMoves = []; // Store valid moves for highlighting
 
-// Variable to track the current turn
-let currentTurn = 'white'; // White moves first
+// Helper: Convert chess notation (A2) to board coordinates
+function notationToCoords(notation) {
+    if (!notation || notation.length < 2) return null;
+    const file = notation[0].toUpperCase();
+    const rank = notation[1];
+    const x = file.charCodeAt(0) - 'A'.charCodeAt(0);
+    const y = 8 - parseInt(rank);
+    if (x < 0 || x > 7 || y < 0 || y > 7) return null;
+    return { x, y };
+}
 
+// Render the board from the game.js board array
 function renderBoard() {
     chessboard.innerHTML = '';
     for (let row = 0; row < 8; row++) {
@@ -112,6 +46,7 @@ function renderBoard() {
             square.dataset.y = row;
             square.ondragover = e => e.preventDefault();
             square.ondrop = onDrop;
+            square.onclick = onSquareClick;
 
             // Alternate colors for the squares
             if ((row + col) % 2 === 0) {
@@ -120,8 +55,18 @@ function renderBoard() {
                 square.style.backgroundColor = '#b58863'; // Dark square
             }
 
+            // Highlight selected square
+            if (selectedFrom && selectedFrom.x === col && selectedFrom.y === row) {
+                square.style.outline = '2px solid orange';
+            }
+
+            // Highlight valid move squares
+            if (validMoves.some(m => m.x === col && m.y === row)) {
+                square.style.boxShadow = 'inset 0 0 0 4px yellow';
+            }
+
             // Add piece if present
-            const piece = boardState[row][col];
+            const piece = board[row][col];
             if (piece) {
                 const pieceDiv = document.createElement('div');
                 pieceDiv.draggable = true;
@@ -129,20 +74,21 @@ function renderBoard() {
                 pieceDiv.dataset.y = row;
                 pieceDiv.ondragstart = onDragStart;
                 pieceDiv.ondragend = onDragEnd;
+                pieceDiv.onclick = onSquareClick;
 
                 // Use SVG images for pieces
                 let imgName = '';
-                if (piece instanceof Pawn) {
+                if (piece.type === 'pawn') {
                     imgName = `${piece.color}-pawn.svg`;
-                } else if (piece instanceof Rook) {
+                } else if (piece.type === 'rook') {
                     imgName = `${piece.color}-rook.svg`;
-                } else if (piece instanceof Knight) {
+                } else if (piece.type === 'knight') {
                     imgName = `${piece.color}-knight.svg`;
-                } else if (piece instanceof Bishop) {
+                } else if (piece.type === 'bishop') {
                     imgName = `${piece.color}-bishop.svg`;
-                } else if (piece instanceof Queen) {
+                } else if (piece.type === 'queen') {
                     imgName = `${piece.color}-queen.svg`;
-                } else if (piece instanceof King) {
+                } else if (piece.type === 'king') {
                     imgName = `${piece.color}-king.svg`;
                 }
                 if (imgName) {
@@ -150,7 +96,10 @@ function renderBoard() {
                     img.src = `assets/${imgName}`;
                     img.style.width = '60px';
                     img.style.height = '60px';
-                    img.draggable = false; // Prevent dragging the image itself
+                    img.draggable = false;
+                    img.dataset.x = col;
+                    img.dataset.y = row;
+                    img.onclick = onSquareClick;
                     pieceDiv.appendChild(img);
                 }
 
@@ -163,125 +112,74 @@ function renderBoard() {
     }
 }
 
+// Drag-and-drop handlers
 function onDragStart(e) {
     const x = parseInt(this.dataset.x);
     const y = parseInt(this.dataset.y);
-    const piece = boardState[y][x];
-
-    // Ensure only the current player's pieces can be moved
-    if (!piece || piece.color !== currentTurn) {
-        console.log(`It's ${currentTurn}'s turn!`);
-        e.preventDefault();
-        return;
-    }
-
-    draggedPiece = piece;
-    validMoves = draggedPiece.getPossibleMoves({
-        ...boardInterface,
-        lastMove: boardInterface.lastMove
-    });
-
-    // Highlight valid squares
-    document.querySelectorAll('#chessboard > div').forEach(sq => {
-        const sx = parseInt(sq.dataset.x);
-        const sy = parseInt(sq.dataset.y);
-        if (validMoves.some(m => m.x === sx && m.y === sy)) {
-            sq.style.outline = '2px solid orange';
-        }
-    });
-
+    draggedFrom = { x, y };
     e.dataTransfer.setData('text/plain', `${x},${y}`);
 }
-
 function onDragEnd() {
-    document.querySelectorAll('#chessboard > div').forEach(sq => sq.style.outline = '');
-    draggedPiece = null;
-    validMoves = [];
+    draggedFrom = null;
 }
-
 function onDrop(e) {
+    if (!draggedFrom) return;
     const toX = parseInt(this.dataset.x);
     const toY = parseInt(this.dataset.y);
-    if (!draggedPiece) return;
-
-    const fromX = draggedPiece.position.x;
-    const fromY = draggedPiece.position.y;
-
-    // Check if move is valid
-    const move = validMoves.find(m => m.x === toX && m.y === toY);
-    if (move) {
-        // Handle normal capture
-        if (boardState[toY][toX]) {
-            const capturedPiece = boardState[toY][toX];
-            if (capturedPiece instanceof Pawn) {
-                const idx = pawns.indexOf(capturedPiece);
-                if (idx !== -1) pawns.splice(idx, 1);
-            } else if (capturedPiece instanceof Rook) {
-                const idx = rooks.indexOf(capturedPiece);
-                if (idx !== -1) rooks.splice(idx, 1);
-            } else if (capturedPiece instanceof Knight) {
-                const idx = knights.indexOf(capturedPiece);
-                if (idx !== -1) knights.splice(idx, 1);
-            } else if (capturedPiece instanceof Bishop) {
-                const idx = bishops.indexOf(capturedPiece);
-                if (idx !== -1) bishops.splice(idx, 1);
-            } else if (capturedPiece instanceof Queen) {
-                const idx = queens.indexOf(capturedPiece);
-                if (idx !== -1) queens.splice(idx, 1);
-            } else if (capturedPiece instanceof King) {
-                const idx = kings.indexOf(capturedPiece);
-                if (idx !== -1) kings.splice(idx, 1);
-            }
-            boardState[toY][toX] = null;
-        }
-
-        // En passant capture
-        if (draggedPiece instanceof Pawn && move.enPassant) {
-            const dir = draggedPiece.color === 'white' ? 1 : -1;
-            const capturedY = toY + dir;
-            const capturedPawn = boardState[capturedY][toX];
-            if (capturedPawn && capturedPawn instanceof Pawn) {
-                const idx = pawns.indexOf(capturedPawn);
-                if (idx !== -1) pawns.splice(idx, 1);
-                boardState[capturedY][toX] = null;
-            }
-        }
-
-        // Castling move
-        if (draggedPiece instanceof King && move.castling) {
-            // King-side
-            if (move.castling === 'king') {
-                const rook = boardState[toY][7];
-                boardState[toY][7] = null;
-                boardState[toY][5] = rook;
-                rook.moveTo({ x: 5, y: toY });
-            }
-            // Queen-side
-            if (move.castling === 'queen') {
-                const rook = boardState[toY][0];
-                boardState[toY][0] = null;
-                boardState[toY][3] = rook;
-                rook.moveTo({ x: 3, y: toY });
-            }
-        }
-
-        // Move piece
-        boardState[fromY][fromX] = null;
-        boardState[toY][toX] = draggedPiece;
-        draggedPiece.moveTo({ x: toX, y: toY });
-        boardInterface.lastMove = {
-            piece: draggedPiece,
-            from: { x: fromX, y: fromY },
-            to: { x: toX, y: toY }
-        };
-
-        // Switch turns
-        currentTurn = currentTurn === 'white' ? 'black' : 'white';
-        console.log(`Move successful! It's now ${currentTurn}'s turn.`);
+    if (window.tryMove(draggedFrom, { x: toX, y: toY })) {
         renderBoard();
     }
-
-    onDragEnd();
+    draggedFrom = null;
 }
 
+// Click-to-move handler
+function onSquareClick(e) {
+    let target = e.target;
+    while (target && (!target.dataset.x || !target.dataset.y)) {
+        target = target.parentElement;
+    }
+    if (!target) return;
+    const x = parseInt(target.dataset.x);
+    const y = parseInt(target.dataset.y);
+    const piece = board[y][x];
+
+    if (!selectedFrom) {
+        // Select only if it's the current player's piece
+        if (piece && piece.color === window.currentTurn) {
+            selectedFrom = { x, y };
+            // Get valid moves from game.js and store for highlighting
+            const moves = getValidMoves(board, [y, x]);
+            validMoves = moves.map(([toY, toX]) => ({ x: toX, y: toY }));
+            renderBoard();
+        }
+    } else {
+        if (window.tryMove(selectedFrom, { x, y })) {
+            selectedFrom = null;
+            validMoves = [];
+            renderBoard();
+        } else if (piece && piece.color === window.currentTurn) {
+            // Select a different piece of the same color
+            selectedFrom = { x, y };
+            const moves = getValidMoves(board, [y, x]);
+            validMoves = moves.map(([toY, toX]) => ({ x: toX, y: toY }));
+            renderBoard();
+        } else {
+            // Deselect if invalid
+            selectedFrom = null;
+            validMoves = [];
+            renderBoard();
+        }
+    }
+}
+
+// Function for AI to make a move: from and to are strings like "A2", "A4"
+function makeAIMove(fromNotation, toNotation) {
+    if (window.tryMoveNotation(fromNotation, toNotation)) {
+        renderBoard();
+        return true;
+    }
+    return false;
+}
+
+// Initial render
 renderBoard();

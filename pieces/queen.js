@@ -1,7 +1,8 @@
 class Queen {
     constructor(color, position) {
-        this.color = color; // 'white' or 'black'
-        this.position = position; // { x, y }
+        this.color = color;
+        this.position = position;
+        this.type = 'queen'; // <-- Add this line
     }
 
     moveTo(position) {
