@@ -1,10 +1,10 @@
 import os
 from flask import Flask, request, jsonify
 import requests
-from flask_cors import CORS 
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  
+CORS(app, origins=["http://127.0.0.1:5500", "http://localhost:5500"])
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
