@@ -19,7 +19,7 @@ def analyze():
         "Respond in the following format: COLUMNROW, COLUMNROW" +
         "The first COLUMNROW is the piece you are moving, the second COLUMNROW is where you are moving it to." +
         "Abide by all basic chess rules." +
-        "Only include the move in the specified chess notation, no additional text." +
+        "Only include the move in the specified chess notation, no additional text."
     )
 
     try:
