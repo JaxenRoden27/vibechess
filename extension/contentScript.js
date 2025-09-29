@@ -1,6 +1,6 @@
 
 
-
+/*
 // Listen for custom event from chess game when a move is made
 window.addEventListener('chessMoveMade', function(e) {
   const boardData = e.detail.boardData;
@@ -30,3 +30,4 @@ window.addEventListener('chessMoveMade', function(e) {
     }
   );
 });
+*/

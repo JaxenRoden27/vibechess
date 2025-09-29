@@ -19,7 +19,7 @@ def analyze():
         "Respond in the following format: COLUMNROW, COLUMNROW" +
         "The first COLUMNROW is the piece you are moving, the second COLUMNROW is where you are moving it to." +
         "Abide by all basic chess rules." +
-        "Only include the move in the specified chess notation, no additional text." +
+        "Only include the move in the specified chess notation, no additional text."
     )
 
     try:
@@ -32,7 +32,7 @@ def analyze():
                 "Authorization": f"Bearer {os.getenv('chessbroskey')}"
             },
             json={
-                "model": "llama3-8b-8192",
+                "model": "llama-3.1-8b-instant",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.1                       #Adjusts the randomness of the response, lower values make it more deterministic
             },

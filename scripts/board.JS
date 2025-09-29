@@ -1,3 +1,29 @@
+// Send board state to AI backend and apply AI move
+function sendBoardToAI(boardData) {
+    console.log("♟️ Move made, sending board data to AI backend:", boardData);
+    fetch("https://chessbros.onrender.com/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ boardData: boardData })
+    })
+    .then(res => res.json())
+    .then(response => {
+        console.log("📨 AI Response: ", response);
+        if (response && response.result && window.tryMoveNotation) {
+            // Expecting format: "E2,E4" or similar
+            const move = response.result.trim().split(',');
+            if (move.length === 2) {
+                const from = move[0].toUpperCase();
+                const to = move[1].toUpperCase();
+                const moveSuccess = window.tryMoveNotation(from, to);
+                console.log("AI Move success:", moveSuccess);
+            }
+        }
+    })
+    .catch(err => {
+        console.error("❌ Fetch failed", err);
+    });
+}
 // board.js
 
 // Use the board from game.js as the source of truth
@@ -128,8 +154,8 @@ function onDrop(e) {
     const toY = parseInt(this.dataset.y);
     if (window.tryMove(draggedFrom, { x: toX, y: toY })) {
         renderBoard();
-        // Dispatch event for extension to trigger AI
-        window.dispatchEvent(new CustomEvent('chessMoveMade', { detail: { boardData: JSON.stringify(window.board) } }));
+        // Send board state to AI backend
+        sendBoardToAI(JSON.stringify(window.board));
     }
     draggedFrom = null;
 }
@@ -159,8 +185,8 @@ function onSquareClick(e) {
             selectedFrom = null;
             validMoves = [];
             renderBoard();
-            // Dispatch event for extension to trigger AI
-            window.dispatchEvent(new CustomEvent('chessMoveMade', { detail: { boardData: JSON.stringify(window.board) } }));
+            // Send board state to AI backend
+            sendBoardToAI(JSON.stringify(window.board));
             console.log("Move made from", selectedFrom, "to", { x, y });
         } else if (piece && piece.color === window.currentTurn) {
             // Select a different piece of the same color
