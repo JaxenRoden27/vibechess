@@ -2,6 +2,7 @@ class Knight {
     constructor(color, position) {
         this.color = color;
         this.position = position;
+        this.type = 'knight'; // <-- Add this line
     }
 
     getPossibleMoves(board) {
