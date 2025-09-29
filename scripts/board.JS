@@ -39,7 +39,64 @@ chessboard.style.height = '640px';
 chessboard.style.border = '2px solid black';
 chessboard.id = 'chessboard';
 
-document.body.appendChild(chessboard);
+// Create a container for the board and labels
+const boardContainer = document.createElement('div');
+boardContainer.style.position = 'relative';
+boardContainer.style.width = '680px'; // 640px board + 40px for labels
+boardContainer.style.height = '680px';
+boardContainer.style.margin = '20px';
+document.body.appendChild(boardContainer);
+
+// Add the chessboard to the container
+chessboard.style.position = 'absolute';
+chessboard.style.left = '40px';
+chessboard.style.top = '0px';
+boardContainer.appendChild(chessboard);
+
+// Add file (A-H) labels at the bottom
+const fileLabels = document.createElement('div');
+fileLabels.style.position = 'absolute';
+fileLabels.style.left = '40px';
+fileLabels.style.top = '640px';
+fileLabels.style.width = '640px';
+fileLabels.style.height = '40px';
+fileLabels.style.display = 'flex';
+fileLabels.style.justifyContent = 'space-between';
+fileLabels.style.alignItems = 'center';
+fileLabels.style.fontWeight = 'bold';
+fileLabels.style.fontSize = '20px';
+for (let i = 0; i < 8; i++) {
+    const label = document.createElement('div');
+    label.textContent = String.fromCharCode(65 + i); // 'A' to 'H'
+    label.style.width = '80px';
+    label.style.textAlign = 'center';
+    fileLabels.appendChild(label);
+}
+boardContainer.appendChild(fileLabels);
+
+// Add rank (8-1) labels on the left
+const rankLabels = document.createElement('div');
+rankLabels.style.position = 'absolute';
+rankLabels.style.left = '0px';
+rankLabels.style.top = '0px';
+rankLabels.style.width = '40px';
+rankLabels.style.height = '640px';
+rankLabels.style.display = 'flex';
+rankLabels.style.flexDirection = 'column';
+rankLabels.style.justifyContent = 'space-between';
+rankLabels.style.alignItems = 'center';
+rankLabels.style.fontWeight = 'bold';
+rankLabels.style.fontSize = '20px';
+for (let i = 0; i < 8; i++) {
+    const label = document.createElement('div');
+    label.textContent = 8 - i;
+    label.style.height = '80px';
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.justifyContent = 'center';
+    rankLabels.appendChild(label);
+}
+boardContainer.appendChild(rankLabels);
 
 let selectedFrom = null;
 let draggedFrom = null;
