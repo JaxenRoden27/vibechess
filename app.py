@@ -22,7 +22,8 @@ def analyze():
         "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW." +
         "Here is an example response, this is only for you to learn on, DO NOT USE THIS MOVE IN THE GAME unless that is a valid move that a beginner would make in that situation, Example: E7, E5" +
         "Abide by all basic chess rules and remember you are always going to be black." +
-        "Only include the move in the specified chess notation, no additional text."
+        "Only include the move in the specified chess notation, no additional text." +
+        "For reference the board uploaded is 0,0 is G8 and 7,7 is A1"
     )
 
     try:
@@ -37,7 +38,7 @@ def analyze():
             json={
                 "model": "llama-3.1-8b-instant",
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.9                       #Adjusts the randomness of the response, lower values make it more deterministic
+                "temperature": 0.7                       #Adjusts the randomness of the response, lower values make it more deterministic
             },
             timeout=5 
         )
