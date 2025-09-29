@@ -128,6 +128,8 @@ function onDrop(e) {
     const toY = parseInt(this.dataset.y);
     if (window.tryMove(draggedFrom, { x: toX, y: toY })) {
         renderBoard();
+        // Dispatch event for extension to trigger AI
+        window.dispatchEvent(new CustomEvent('chessMoveMade', { detail: { boardData: JSON.stringify(window.board) } }));
     }
     draggedFrom = null;
 }
@@ -157,6 +159,9 @@ function onSquareClick(e) {
             selectedFrom = null;
             validMoves = [];
             renderBoard();
+            // Dispatch event for extension to trigger AI
+            window.dispatchEvent(new CustomEvent('chessMoveMade', { detail: { boardData: JSON.stringify(window.board) } }));
+            console.log("Move made from", selectedFrom, "to", { x, y });
         } else if (piece && piece.color === window.currentTurn) {
             // Select a different piece of the same color
             selectedFrom = { x, y };

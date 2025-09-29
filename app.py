@@ -9,14 +9,17 @@ CORS(app)
 @app.route("/analyze", methods=["POST"])
 def analyze():
     data = request.get_json()
-    player_moves = data.get("player_moves", "")
-    most_recent_move = data.get("most_recent_move", "")
-    level = data.get("level", 1)
+    boardData = data.get("boardData", "")
 
     prompt = (
-        "You are a chess player. Your level of play will be determined by the following level of play. 1 is novice and 10 grandmaster. The level of play you will be is: {level}"
-        "You are always going to be the black pieces in the game. You will move one piece at a time. The following is all the moves the player has made in the game: {player_moves}"
-        "The most recent move made by the player is: {most_recent_move}"
+        "You are a beginner chess player." +
+        "You are always going to be the black pieces in the game. You will move one piece at a time." +
+        "The current state of the board is: {boardData}" +
+        "Based on the current state of the board, suggest the move for black that a beginner chess player would make in the same situation." +
+        "Respond in the following format: COLUMNROW, COLUMNROW" +
+        "The first COLUMNROW is the piece you are moving, the second COLUMNROW is where you are moving it to." +
+        "Abide by all basic chess rules." +
+        "Only include the move in the specified chess notation, no additional text." +
     )
 
     try:
@@ -31,9 +34,9 @@ def analyze():
             json={
                 "model": "llama3-8b-8192",
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.2                       #Adjusts the randomness of the response, lower values make it more deterministic
+                "temperature": 0.1                       #Adjusts the randomness of the response, lower values make it more deterministic
             },
-            timeout=10 
+            timeout=5 
         )
 
         result = response.json()

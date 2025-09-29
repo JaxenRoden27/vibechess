@@ -3,9 +3,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "CHECK_CHESS") {
     const url = "https://chessbros.onrender.com/analyze"; 
     const payload = JSON.stringify({
-      player_moves: message.player_moves,
-      most_recent_move: message.most_recent_move,
-      level: message.level
+      boardData: message.boardData
     });
 
     console.log("📡 Sending POST to:", url);
