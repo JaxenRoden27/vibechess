@@ -26,7 +26,7 @@ def analyze():
         "Here is an example response, this is only for you to learn from, DO NOT USE THIS MOVE IN THE GAME unless it is actually valid: Example: E7, E5. " +
         "Abide by all basic chess rules and remember you are always going to be black. " +
         "Only include the move in the specified chess notation, no additional text. " +
-        "For reference the board uploaded is 0,0 is G8 and 7,7 is A1."
+        "For reference the board uploaded is 7,0 is G8 and 0,7 is A1."
     )
 
     try:
