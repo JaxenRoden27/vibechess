@@ -323,6 +323,12 @@ function makePlayerMove(board, from, to) {
     // Update the board and switch turns
     board[to[0]][to[1]] = board[from[0]][from[1]];
     board[from[0]][from[1]] = null;
+
+    // Record the move in algebraic-like notation
+    const fromNotation = String.fromCharCode(65 + from[1]) + (8 - from[0]);
+    const toNotation = String.fromCharCode(65 + to[1]) + (8 - to[0]);
+    window.moveHistory.push(`${fromNotation},${toNotation}`);
+
     currentTurn = currentTurn === 'white' ? 'black' : 'white';
     console.log(`Move successful! It's now ${currentTurn}'s turn.`);
 
@@ -375,8 +381,5 @@ window.tryMoveNotation = function(fromNotation, toNotation) {
     const to = notationToCoords(toNotation);
     if (!from || !to) return false;
     const moveSuccess = window.tryMove(from, to);
-    if (moveSuccess) {
-        window.moveHistory.push(`${fromNotation},${toNotation}`);
-    }
     return moveSuccess;
 };

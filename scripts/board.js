@@ -52,9 +52,6 @@ function sendBoardToAI(boardData) {
                 const from = move[0].trim().toUpperCase();
                 const to = move[1].trim().toUpperCase();
                 const moveSuccess = makeAIMove(from, to);
-                if (moveSuccess) {
-                    window.moveHistory.push(`${from},${to}`);
-                }
                 console.log("AI Move success:", moveSuccess, "from", from, "to", to);
             } else {
                 console.error("AI response format invalid:", response.result);
