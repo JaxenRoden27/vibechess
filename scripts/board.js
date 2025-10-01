@@ -1,31 +1,3 @@
-// Send board state to AI backend and apply AI move
-function sendBoardToAI(boardData) {
-    console.log("♟️ Move made, sending board data to AI backend:", boardData);
-    fetch("https://chessbros.onrender.com/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardData: boardData })
-    })
-    .then(res => res.json())
-    .then(response => {
-        console.log("📨 AI Response: ", response);
-        if (response && response.result && window.tryMoveNotation) {
-            // Expecting format: "E2, E4" or similar
-            const move = response.result.trim().split(',');
-            move[0] = move[0].trim();
-            move[1] = move[1].trim();
-            if (move.length === 2) {
-                const from = move[0].toUpperCase();
-                const to = move[1].toUpperCase();
-                const moveSuccess = window.tryMoveNotation(from, to);
-                console.log("AI Move success:", moveSuccess);
-            }
-        }
-    })
-    .catch(err => {
-        console.error("❌ Fetch failed", err);
-    });
-}
 // Convert board array to FEN string
 function boardArrayToFEN(board, currentTurn = 'w') {
     let fen = '';
@@ -73,13 +45,17 @@ function sendBoardToAI(boardData) {
     .then(res => res.json())
     .then(response => {
         console.log("📨 AI Response: ", response);
-        if (response && response.result && window.tryMoveNotation) {
-            // Expecting format: "E2,E4" or similar
-            const move = response.result;
-            const from = move[0] + move[1];
-            const to = move[4] + move[5];
-            const moveSuccess = window.tryMoveNotation(from, to);
-            console.log("AI Move success:", moveSuccess, "from", from, "to", to);
+        if (response && response.result && window.makeAIMove) {
+            // Expecting format: "E7, E5"
+            const move = response.result.trim().split(',');
+            if (move.length === 2) {
+                const from = move[0].trim().toUpperCase();
+                const to = move[1].trim().toUpperCase();
+                const moveSuccess = makeAIMove(from, to);
+                console.log("AI Move success:", moveSuccess, "from", from, "to", to);
+            } else {
+                console.error("AI response format invalid:", response.result);
+            }
         }
     })
     .catch(err => {

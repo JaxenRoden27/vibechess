@@ -353,6 +353,7 @@ function findKingPosition(board, color) {
  */
 window.tryMove = function(from, to) {
     // Use makePlayerMove for all moves
+    console.log("Trying move from", from, "to", to);
     return makePlayerMove(window.board, [from.y, from.x], [to.y, to.x]);
 };
 
