@@ -42,8 +42,8 @@ def analyze():
             json={
                 "model": "llama-3.3-70b-versatile",
                 "messages": [{"role": "user", "content": prompt}],
-                "temperature": 2.0,
-                "top_p": 0.9,
+                "temperature": 1.3,
+                "top_p": 0.8,
             },
             timeout=5 
         )
