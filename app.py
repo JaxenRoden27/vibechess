@@ -38,7 +38,7 @@ def analyze():
                 "Authorization": f"Bearer {os.getenv('chessbroskey')}"
             },
             json={
-                "model": "llama-3.1-8b-instant",
+                "model": "llama-3.1-70b-versatile",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 2.0,
                 "top_p": 0.9,
