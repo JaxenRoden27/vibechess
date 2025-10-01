@@ -38,7 +38,7 @@ def analyze():
                 "Authorization": f"Bearer {os.getenv('chessbroskey')}"
             },
             json={
-                "model": "llama-3.1-70b-versatile",
+                "model": "llama-3.3-70b-versatile",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 2.0,
                 "top_p": 0.9,
@@ -57,5 +57,6 @@ def analyze():
         return jsonify({"result": result_text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
