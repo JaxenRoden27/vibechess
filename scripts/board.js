@@ -36,11 +36,11 @@ function boardArrayToFEN(board, currentTurn = 'w') {
 function sendBoardToAI(boardData) {
     // Convert boardData (array) to FEN before sending
     const fen = boardArrayToFEN(window.board, window.currentTurn === 'white' ? 'w' : 'b');
-    console.log("♟️ Move made, sending FEN to AI backend:", fen);
+    console.log("♟️ Move made, sending FEN and moveHistory to AI backend:", fen, window.moveHistory);
     fetch("https://chessbros.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardData: fen })
+        body: JSON.stringify({ boardData: fen, moveHistory: window.moveHistory })
     })
     .then(res => res.json())
     .then(response => {
@@ -52,6 +52,9 @@ function sendBoardToAI(boardData) {
                 const from = move[0].trim().toUpperCase();
                 const to = move[1].trim().toUpperCase();
                 const moveSuccess = makeAIMove(from, to);
+                if (moveSuccess) {
+                    window.moveHistory.push(`${from},${to}`);
+                }
                 console.log("AI Move success:", moveSuccess, "from", from, "to", to);
             } else {
                 console.error("AI response format invalid:", response.result);

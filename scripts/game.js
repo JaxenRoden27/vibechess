@@ -5,6 +5,9 @@ let gameOver = false;
 window.board = Array(8).fill(null).map(() => Array(8).fill(null));
 window.currentTurn = 'white';
 
+// Move history array
+window.moveHistory = []; // Store moves as ["E2,E4", "E7,E5", ...]
+
 // Place pieces on the board
 function setupBoard() {
     // Pawns
@@ -371,5 +374,9 @@ window.tryMoveNotation = function(fromNotation, toNotation) {
     const from = notationToCoords(fromNotation);
     const to = notationToCoords(toNotation);
     if (!from || !to) return false;
-    return window.tryMove(from, to);
+    const moveSuccess = window.tryMove(from, to);
+    if (moveSuccess) {
+        window.moveHistory.push(`${fromNotation},${toNotation}`);
+    }
+    return moveSuccess;
 };
