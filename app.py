@@ -27,7 +27,7 @@ def analyze():
         "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW. " +
         "Here is an example response, this is only for you to learn from, DO NOT USE THIS MOVE IN THE GAME unless it is actually valid: Example: E7, E5. " +
         "Abide by all basic chess rules and remember you are always going to be black. " +
-        "Only include the move in the specified chess notation, no additional text. " +
+        "Only include the move in the specified chess notation, no additional text. " 
     )
 
     try:
