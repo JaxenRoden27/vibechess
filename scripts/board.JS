@@ -75,13 +75,11 @@ function sendBoardToAI(boardData) {
         console.log("📨 AI Response: ", response);
         if (response && response.result && window.tryMoveNotation) {
             // Expecting format: "E2,E4" or similar
-            const move = response.result.trim().split(',');
-            if (move.length === 2) {
-                const from = move[0].toUpperCase();
-                const to = move[1].toUpperCase();
-                const moveSuccess = window.tryMoveNotation(from, to);
-                console.log("AI Move success:", moveSuccess);
-            }
+            const move = response.result;
+            const from = move[0] + move[1];
+            const to = move[4] + move[5];
+            const moveSuccess = window.tryMoveNotation(from, to);
+            console.log("AI Move success:", moveSuccess, "from", from, "to", to);
         }
     })
     .catch(err => {
