@@ -12,21 +12,7 @@ def analyze():
     boardData = data.get("boardData", "")
     
     prompt = (
-        "You are a beginner chess player. " +
-        "You are always going to be the black pieces in the game. You will move one piece at a time. " +
-        "You must only move a black piece, never a white piece. " +
-        f"The current state of the board is: {boardData} " +
-        "Based on the current state of the board, suggest a move for black that a beginner chess player might make in the same situation. " +
-        "Beginners do not always make the exact same move, so you should introduce variety in your choices. " +
-        "From all valid black beginner moves, pick one at random as if different beginners were making the decision." + 
-        "Do not always choose the same move in the same situation." +
-        "Respond in the following format: COLUMNROW, COLUMNROW. " +
-        "The first COLUMNROW is the black piece you are moving, the second COLUMNROW is the location on the board you are moving the black piece to. " +
-        "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW. " +
-        "Here is an example response, this is only for you to learn from, DO NOT USE THIS MOVE IN THE GAME unless it is actually valid: Example: E7, E5. " +
-        "Abide by all basic chess rules and remember you are always going to be black. " +
-        "Only include the move in the specified chess notation, no additional text. " +
-        "For reference the board uploaded is 7,0 is G8 and 0,7 is A1."
+        "say hello. "
     )
 
     try:
