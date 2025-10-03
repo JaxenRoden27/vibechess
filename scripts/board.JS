@@ -1,3 +1,64 @@
+// Convert board array to FEN string
+function boardArrayToFEN(board, currentTurn = 'w') {
+    let fen = '';
+    for (let row = 0; row < 8; row++) {
+        let empty = 0;
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+            if (!piece) {
+                empty++;
+            } else {
+                if (empty > 0) {
+                    fen += empty;
+                    empty = 0;
+                }
+                let symbol = '';
+                switch (piece.type) {
+                    case 'pawn': symbol = 'p'; break;
+                    case 'rook': symbol = 'r'; break;
+                    case 'knight': symbol = 'n'; break;
+                    case 'bishop': symbol = 'b'; break;
+                    case 'queen': symbol = 'q'; break;
+                    case 'king': symbol = 'k'; break;
+                }
+                fen += piece.color === 'white' ? symbol.toUpperCase() : symbol;
+            }
+        }
+        if (empty > 0) fen += empty;
+        if (row < 7) fen += '/';
+    }
+    // Add turn, castling, en passant, halfmove, fullmove (basic)
+    fen += ` ${currentTurn} - - 0 1`;
+    return fen;
+}
+
+// Send board state to AI backend and apply AI move
+function sendBoardToAI(boardData, retryCount = 0) {
+    const fen = boardArrayToFEN(window.board, window.currentTurn === 'white' ? 'w' : 'b');
+    fetch("https://chessbros.onrender.com/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ boardData: fen, moveHistory: window.moveHistory })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response && response.result && window.makeAIMove) {
+            const move = response.result.trim().split(',');
+            if (move.length === 2) {
+                const from = move[0].trim().toUpperCase();
+                const to = move[1].trim().toUpperCase();
+                const moveSuccess = makeAIMove(from, to);
+                if (!moveSuccess && retryCount < 3) {
+                    // Retry up to 3 times
+                    sendBoardToAI(boardData, retryCount + 1);
+                }
+            }
+        }
+    })
+    .catch(err => {
+        console.error("❌ Fetch failed", err);
+    });
+}
 // board.js
 
 // Use the board from game.js as the source of truth
@@ -13,7 +74,64 @@ chessboard.style.height = '640px';
 chessboard.style.border = '2px solid black';
 chessboard.id = 'chessboard';
 
-document.body.appendChild(chessboard);
+// Create a container for the board and labels
+const boardContainer = document.createElement('div');
+boardContainer.style.position = 'relative';
+boardContainer.style.width = '680px'; // 640px board + 40px for labels
+boardContainer.style.height = '680px';
+boardContainer.style.margin = '20px';
+document.body.appendChild(boardContainer);
+
+// Add the chessboard to the container
+chessboard.style.position = 'absolute';
+chessboard.style.left = '40px';
+chessboard.style.top = '0px';
+boardContainer.appendChild(chessboard);
+
+// Add file (A-H) labels at the bottom
+const fileLabels = document.createElement('div');
+fileLabels.style.position = 'absolute';
+fileLabels.style.left = '40px';
+fileLabels.style.top = '640px';
+fileLabels.style.width = '640px';
+fileLabels.style.height = '40px';
+fileLabels.style.display = 'flex';
+fileLabels.style.justifyContent = 'space-between';
+fileLabels.style.alignItems = 'center';
+fileLabels.style.fontWeight = 'bold';
+fileLabels.style.fontSize = '20px';
+for (let i = 0; i < 8; i++) {
+    const label = document.createElement('div');
+    label.textContent = String.fromCharCode(65 + i); // 'A' to 'H'
+    label.style.width = '80px';
+    label.style.textAlign = 'center';
+    fileLabels.appendChild(label);
+}
+boardContainer.appendChild(fileLabels);
+
+// Add rank (8-1) labels on the left
+const rankLabels = document.createElement('div');
+rankLabels.style.position = 'absolute';
+rankLabels.style.left = '0px';
+rankLabels.style.top = '0px';
+rankLabels.style.width = '40px';
+rankLabels.style.height = '640px';
+rankLabels.style.display = 'flex';
+rankLabels.style.flexDirection = 'column';
+rankLabels.style.justifyContent = 'space-between';
+rankLabels.style.alignItems = 'center';
+rankLabels.style.fontWeight = 'bold';
+rankLabels.style.fontSize = '20px';
+for (let i = 0; i < 8; i++) {
+    const label = document.createElement('div');
+    label.textContent = 8 - i;
+    label.style.height = '80px';
+    label.style.display = 'flex';
+    label.style.alignItems = 'center';
+    label.style.justifyContent = 'center';
+    rankLabels.appendChild(label);
+}
+boardContainer.appendChild(rankLabels);
 
 let selectedFrom = null;
 let draggedFrom = null;
@@ -128,6 +246,8 @@ function onDrop(e) {
     const toY = parseInt(this.dataset.y);
     if (window.tryMove(draggedFrom, { x: toX, y: toY })) {
         renderBoard();
+        // Send board state to AI backend
+        sendBoardToAI(JSON.stringify(window.board));
     }
     draggedFrom = null;
 }
@@ -157,6 +277,9 @@ function onSquareClick(e) {
             selectedFrom = null;
             validMoves = [];
             renderBoard();
+            // Send board state to AI backend
+            sendBoardToAI(JSON.stringify(window.board));
+            console.log("Move made from", selectedFrom, "to", { x, y });
         } else if (piece && piece.color === window.currentTurn) {
             // Select a different piece of the same color
             selectedFrom = { x, y };
