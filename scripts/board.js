@@ -68,7 +68,7 @@ function sendBoardToAI(boardData, retryCount = 0) {
 
     
     if (retryCount > 0) {
-        prompt += `Already have attempted move. Try something different.`;
+        prompt += `Already have attempted previous move. Try something different that is still valid.`;
     }
 
     fetch("https://chessbros.onrender.com/analyze", {
