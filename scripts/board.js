@@ -46,7 +46,11 @@ function sendBoardToAI(boardData, retryCount = 0) {
         }
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    const seed = randomInt(1000, 9999);
+
+    if (retryCount > 0) {
+        prompt += `Already have attempted move. Try something different.`;
+    }
+    const seed = randomInt(1, 9999);
     const prompt = 
         "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
         "You are always going to be the black pieces in the game. You will move one piece at a time. " +
@@ -64,7 +68,7 @@ function sendBoardToAI(boardData, retryCount = 0) {
         "Here are some example responses, this is only for you to learn from the formatting not the moves themselves: Example 1: E7, E5. Example 2: D7, D5. Example 3: C6, C5. Example 4: B7, C5. " +
         "Abide by all basic chess rules and remember you are always going to be black. " +
     "Only include the move in the specified chess notation, no additional text. " +
-    `Randomizer: ${seed}`;
+    `Use this Randomized number to vary your response: ${seed}`;
 
     fetch("https://chessbros.onrender.com/analyze", {
         method: "POST",
