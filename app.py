@@ -12,6 +12,7 @@ def analyze():
     boardData = data.get("boardData", "")
     moveHistory = data.get("moveHistory", [])
     
+    seed = random.randint(1000, 9999)
     prompt = (
         "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
         "You are always going to be the black pieces in the game. You will move one piece at a time. " +
@@ -28,7 +29,8 @@ def analyze():
         "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW. " +
         "Here are some example responses, this is only for you to learn from the formatting not the moves themselves: Example 1: E7, E5. Example 2: D7, D5. Example 3: C6, C5. Example 4: B7, C5. " +
         "Abide by all basic chess rules and remember you are always going to be black. " +
-        "Only include the move in the specified chess notation, no additional text. " 
+        "Only include the move in the specified chess notation, no additional text. " +
+        "Randomizer: {seed}"
     )
 
     try:
