@@ -68,7 +68,7 @@ function sendBoardToAI(boardData, retryCount = 0) {
 
     
     if (retryCount > 0) {
-        prompt += `Already have attempted previous move. Try a different to move a different piece that is still valid.`;
+        prompt += `Already have attempted previous move. Try to move a different piece. This move should still follow all basic chess rules.`;
     }
 
     fetch("https://chessbros.onrender.com/analyze", {
