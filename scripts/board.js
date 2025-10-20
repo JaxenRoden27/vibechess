@@ -35,10 +35,30 @@ function boardArrayToFEN(board, currentTurn = 'w') {
 // Send board state to AI backend and apply AI move
 function sendBoardToAI(boardData, retryCount = 0) {
     const fen = boardArrayToFEN(window.board, window.currentTurn === 'white' ? 'w' : 'b');
+    const seed = random.randint(1000, 9999)
+    const prompt = 
+        "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
+        "You are always going to be the black pieces in the game. You will move one piece at a time. " +
+        "You must only move a black piece, never a white piece. " +
+        f`The current state of the board is: ${fen} ` +
+        f`The move history of the game so far is: ${window.moveHistory} ` +
+        "Based on the current state of the board, suggest a move for black that a beginner chess player might make in the same situation. " +
+        "Beginners do not always make the exact same move, so you should introduce variety in your choices. " +
+        "From all valid black beginner moves, pick one at random as if different beginners were making the decision. " +
+        "Make sure that even though this is a beginner move, it is still a valid move according to chess rules. " +
+        "Do not always choose the same move in the same situation. " +
+        "Respond in the following format: COLUMNROW, COLUMNROW. " +
+        "The first COLUMNROW is the black piece you are moving, the second COLUMNROW is the location on the board you are moving the black piece to. " +
+        "Make sure you respond with exactly the format specified, making sure to include the comma and space between the COLUMNROW and the COLUMNROW. " +
+        "Here are some example responses, this is only for you to learn from the formatting not the moves themselves: Example 1: E7, E5. Example 2: D7, D5. Example 3: C6, C5. Example 4: B7, C5. " +
+        "Abide by all basic chess rules and remember you are always going to be black. " +
+        "Only include the move in the specified chess notation, no additional text. " +
+        f`Randomizer: ${seed}`;
+
     fetch("https://chessbros.onrender.com/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ boardData: fen, moveHistory: window.moveHistory })
+        body: JSON.stringify({ boardData: fen, moveHistory: window.moveHistory, prompt: prompt })
     })
     .then(res => res.json())
     .then(response => {
