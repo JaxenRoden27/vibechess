@@ -48,7 +48,7 @@ function sendBoardToAI(boardData, retryCount = 0) {
     }
     const seed = randomInt(1, 9999);
     var prompt = 
-        "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
+        "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 10. " +
         "You are always going to be the black pieces in the game. You will move one piece at a time. " +
     "You must only move a black piece, never a white piece. " +
     `The current state of the board is: ${fen} ` +
