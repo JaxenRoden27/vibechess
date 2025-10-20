@@ -46,10 +46,6 @@ function sendBoardToAI(boardData, retryCount = 0) {
         }
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-
-    if (retryCount > 0) {
-        prompt += `Already have attempted move. Try something different.`;
-    }
     const seed = randomInt(1, 9999);
     const prompt = 
         "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
@@ -69,6 +65,11 @@ function sendBoardToAI(boardData, retryCount = 0) {
         "Abide by all basic chess rules and remember you are always going to be black. " +
     "Only include the move in the specified chess notation, no additional text. " +
     `Use this Randomized number to vary your response: ${seed}`;
+
+    
+    if (retryCount > 0) {
+        prompt += `Already have attempted move. Try something different.`;
+    }
 
     fetch("https://chessbros.onrender.com/analyze", {
         method: "POST",
