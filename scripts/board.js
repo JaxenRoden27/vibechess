@@ -35,7 +35,7 @@ function boardArrayToFEN(board, currentTurn = 'w') {
 // Send board state to AI backend and apply AI move
 function sendBoardToAI(boardData, retryCount = 0) {
     const fen = boardArrayToFEN(window.board, window.currentTurn === 'white' ? 'w' : 'b');
-    const seed = random.randint(1000, 9999)
+    const seed = (new java.util.Random()).nextInt(9000) + 1000;
     const prompt = 
         "On a scale of 1 to 10, 10 being the best player in the world and 1 being someone who has minimal knowledge about chess, you are a 4. " +
         "You are always going to be the black pieces in the game. You will move one piece at a time. " +
