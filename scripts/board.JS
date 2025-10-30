@@ -185,8 +185,6 @@ function onDrop(e) {
     const toY = parseInt(this.dataset.y);
     if (window.tryMove(draggedFrom, { x: toX, y: toY })) {
         renderBoard();
-        // Send board state to AI backend
-        sendBoardToAI(JSON.stringify(window.board));
     }
     draggedFrom = null;
 }
@@ -216,8 +214,6 @@ function onSquareClick(e) {
             selectedFrom = null;
             validMoves = [];
             renderBoard();
-            // Send board state to AI backend
-            sendBoardToAI(JSON.stringify(window.board));
             console.log("Move made from", selectedFrom, "to", { x, y });
         } else if (piece && piece.color === window.currentTurn) {
             // Select a different piece of the same color
@@ -232,15 +228,6 @@ function onSquareClick(e) {
             renderBoard();
         }
     }
-}
-
-// Function for AI to make a move: from and to are strings like "A2", "A4"
-function makeAIMove(fromNotation, toNotation) {
-    if (window.tryMoveNotation(fromNotation, toNotation)) {
-        renderBoard();
-        return true;
-    }
-    return false;
 }
 
 // Initial render
